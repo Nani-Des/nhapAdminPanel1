@@ -308,14 +308,15 @@ const handleSubmit = async (e: React.FormEvent) => {
         });
 
         // Create schedule
-        const scheduleSubRef = collection(userRef, 'Schedule');
-        await setDoc(doc(scheduleSubRef), {
-          'Active Days': scheduleData['Active Days'],
-          'Off Days': scheduleData['Off Days'],
-          Shift: scheduleData.Shift,
-          'Shift Start': scheduleData['Shift Start'],
-          'Shift Switch': scheduleData['Shift Switch'],
-        });
+const scheduleSubRef = doc(db, 'Users', newUserId, 'Schedule', newUserId);
+await setDoc(scheduleSubRef, {
+  'Active Days': scheduleData['Active Days'],
+  'Off Days': scheduleData['Off Days'],
+  Shift: scheduleData.Shift,
+  'Shift Start': scheduleData['Shift Start'],
+  'Shift Switch': scheduleData['Shift Switch'],
+});
+
 
         toast.success('Doctor added successfully');
         
@@ -353,8 +354,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       if (querySnapshot.empty) {
         await addDoc(scheduleCollectionRef, scheduleData);
       } else {
-        const scheduleDoc = querySnapshot.docs[0];
-        const scheduleDocRef = doc(db, 'Users', userId, 'Schedule', scheduleDoc.id);
+        const scheduleDocRef = doc(db, 'Users', userId, 'Schedule', userId);
         await setDoc(scheduleDocRef, scheduleData);
       }
       toast.success('Schedule updated successfully');
