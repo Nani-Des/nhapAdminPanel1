@@ -526,14 +526,15 @@ await setDoc(scheduleSubRef, {
           {filteredUsers.map((user) => (
             <div
               key={user.id}
-              className={`bg-teal-100 p-6 rounded-lg shadow-md border-2 ${
-                user.Status ? 'border-teal-200' : 'border-red-500'
-              } hover:bg-teal-200 transition-all duration-200`}
+              className={`bg-white p-6 rounded-lg shadow-md border-2 ${
+                user.Status ? 'border-teal-200' : 'border-red-300'
+              } hover:bg-teal-100 transition-all duration-200 `}
             >
               <div className="flex items-center space-x-4">
                 {user['User Pic'] ? (
                   <img
-                    src={user['User Pic']}
+                  // src={user['User Pic']}
+                    src={user['User Pic'] ? user['User Pic'].toString() : ''}
                     alt={`${user.Fname} ${user.Lname}`}
                     className="h-12 w-12 rounded-full object-cover shadow-md"
                   />
@@ -595,9 +596,11 @@ await setDoc(scheduleSubRef, {
                         Role: user.Role,
                         Status: user.Status,
                         Region: user.Region,
-                        'User Pic': user['User Pic'] || '',
+                        'User Pic': user['User Pic'] ? String(user['User Pic']) : '',
+                        // 'User Pic': user['User Pic'] || '',
                       });
-                      setImagePreview(user['User Pic'] || null);
+                      // setImagePreview(user['User Pic'] || null);
+                      setImagePreview(user['User Pic'] ? String(user['User Pic']) : null);
                       setIsEditModalOpen(true);
                     }}
                     className="border-teal-200 text-teal-700 hover:bg-teal-300"

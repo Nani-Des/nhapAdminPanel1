@@ -202,7 +202,7 @@ const ShiftSchedulePage: React.FC = () => {
                       <div className="flex items-center space-x-3">
                         {user['User Pic'] ? (
                           <img
-                            src={user['User Pic']}
+                            src={user['User Pic']?.toString()}
                             alt={`${user.Fname} ${user.Lname}`}
                             className="h-8 w-8 rounded-full object-cover shadow-sm"
                           />

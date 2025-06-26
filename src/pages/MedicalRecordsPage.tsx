@@ -277,7 +277,7 @@ const MedicalRecords: React.FC = () => {
                 <p><strong>Reason:</strong> {selectedRecord.referral['Reason for Referral']}</p>
                 <p><strong>Diagnosis:</strong> {selectedRecord.referral['Diagnosis']}</p>
                 <p><strong>Treatment:</strong> {selectedRecord.referral['Treatment Administered']}</p>
-                <p><strong>Referred By:</strong> {users.find((u) => u.id === selectedRecord.referral['Referred By'])?.Fname || 'Unknown'}</p>
+                <p><strong>Referred By:</strong> {users.find((u) => u.id === selectedRecord.referral?.['Referred By'])?.Fname || 'Unknown'}</p>
                 <p><strong>Uploaded Medical Records:</strong> {selectedRecord.referral['Uploaded Medical Records'] || 'N/A'}</p>
               </div>
             )}

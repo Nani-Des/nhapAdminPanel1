@@ -196,7 +196,7 @@ const ReferralsPage: React.FC = () => {
                     <Table.Cell>
                       <button
                         onClick={() => {
-                          fetchDoctorDetails(referral['Referred By']);
+                          fetchDoctorDetails(String(referral['Referred By']));
                           setDoctorModalOpen(true);
                         }}
                         className="text-teal-600 hover:text-teal-800 font-medium underline"

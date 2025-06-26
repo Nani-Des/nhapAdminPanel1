@@ -87,22 +87,18 @@ export interface ForumPost {
 
 export interface Referral {
   id: string;
-  hospitalId: string;
-  patientName: string;
-  ["Name"]: string;
-  ["Sex"]: string,
-  ["Serial Number"]: String
-  ["Treatment Administered"]: string
-  ["Diagnosis"]: String
-  ["Referred By"]: String;
-  patientNumber: string;
-  ["Reason for Referral"]: string;
-  referringDoctor: string;
-  referringHospital: string;
-  treatmentGiven: string;
-  status: 'pending' | 'accepted' | 'declined';
-  createdAt: string;
-}
+  'Serial Number'?: string;
+  'Name'?: string;
+  'Age'?: string;
+  'Date of Birth'?: string;
+  'Sex'?: string;
+  'Reason for Referral'?: string;
+  'Diagnosis'?: string;
+  'Treatment Administered'?: string;
+  'Referred By'?: string;
+  'Uploaded Medical Records'?: string;
+  // add any other properties you access in your code
+  }
 
 export interface Notification {
   id: string;
