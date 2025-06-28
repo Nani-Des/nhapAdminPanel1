@@ -75,6 +75,8 @@ export interface Service {
   "Service Name": string;
   Days: string[];
   Time: string;
+   'Post ID': string;
+    Description: string;
 }
 
 export interface ForumPost {

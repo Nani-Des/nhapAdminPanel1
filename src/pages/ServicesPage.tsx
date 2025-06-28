@@ -12,6 +12,51 @@ import { db } from '../firebase';
 import { Service } from '../types';
 import { toast } from 'react-hot-toast';
 
+// Skeleton Loading Components
+const ServicesHeaderSkeleton = () => (
+  <div className="animate-pulse">
+    <div className="h-8 w-32 bg-teal-200 rounded-lg mb-2"></div>
+    <div className="h-4 w-64 bg-teal-200 rounded-md"></div>
+  </div>
+);
+
+const ServiceCardSkeleton = () => (
+  <div className="bg-teal-100 shadow-lg rounded-lg animate-pulse">
+    <div className="bg-teal-200 h-16 rounded-t-lg p-4">
+      <div className="flex justify-between items-center">
+        <div className="h-6 w-3/4 bg-teal-300 rounded"></div>
+        <div className="flex space-x-2">
+          <div className="h-8 w-8 bg-teal-300 rounded-full"></div>
+          <div className="h-8 w-8 bg-teal-300 rounded-full"></div>
+        </div>
+      </div>
+    </div>
+    <div className="p-4 space-y-4">
+      <div>
+        <div className="h-4 w-1/3 bg-teal-200 rounded mb-2"></div>
+        <div className="flex flex-wrap gap-2">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-6 w-16 bg-teal-200 rounded-full"></div>
+          ))}
+        </div>
+      </div>
+      <div>
+        <div className="h-4 w-1/3 bg-teal-200 rounded mb-2"></div>
+        <div className="h-4 w-3/4 bg-teal-200 rounded"></div>
+      </div>
+      <div>
+        <div className="h-4 w-1/3 bg-teal-200 rounded mb-2"></div>
+        <div className="h-4 w-full bg-teal-200 rounded"></div>
+        <div className="h-4 w-2/3 bg-teal-200 rounded mt-1"></div>
+      </div>
+    </div>
+  </div>
+);
+
+const AddButtonSkeleton = () => (
+  <div className="h-10 w-32 bg-teal-200 rounded-lg animate-pulse"></div>
+);
+
 // Memoized ServiceForm to prevent re-creation on parent re-renders
 interface ServiceFormProps {
   formData: ServiceFormData;
@@ -323,28 +368,38 @@ const ServicesPage: React.FC = () => {
       <div className="space-y-6 bg-teal-50 p-6 rounded-lg">
         {/* Header */}
         <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-teal-900">Services</h1>
-            <p className="mt-2 text-base text-teal-700">Manage hospital services and schedules</p>
-          </div>
-          <Button
-            onClick={() => {
-              setIsAddModalOpen(true);
-              setSelectedService(null);
-              setFormData({ 'Service Name': '', Days: [], Time: '', 'Post ID': '', Description: '' });
-            }}
-            className="bg-teal-600 hover:bg-teal-700 text-white flex items-center"
-          >
-            <FilePlus2 className="w-4 h-4 mr-2" />
-            Add Service
-          </Button>
+          {loading ? (
+            <ServicesHeaderSkeleton />
+          ) : (
+            <div>
+              <h1 className="text-3xl font-bold text-teal-900">Services</h1>
+              <p className="mt-2 text-base text-teal-700">Manage hospital services and schedules</p>
+            </div>
+          )}
+          
+          {loading ? (
+            <AddButtonSkeleton />
+          ) : (
+            <Button
+              onClick={() => {
+                setIsAddModalOpen(true);
+                setSelectedService(null);
+                setFormData({ 'Service Name': '', Days: [], Time: '', 'Post ID': '', Description: '' });
+              }}
+              className="bg-teal-600 hover:bg-teal-700 text-white flex items-center"
+            >
+              <FilePlus2 className="w-4 h-4 mr-2" />
+              Add Service
+            </Button>
+          )}
         </div>
 
-        {/* Loading State */}
+        {/* Services Grid */}
         {loading ? (
-          <div className="flex flex-col justify-center items-center py-10">
-            <Spinner />
-            <span className="text-teal-600 mt-2">Loading services...</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(3)].map((_, i) => (
+              <ServiceCardSkeleton key={i} />
+            ))}
           </div>
         ) : hospitalServices[hospital?.id || '']?.length === 0 ? (
           <div className="text-center py-10">
@@ -365,7 +420,7 @@ const ServicesPage: React.FC = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                          setSelectedService(service.id);
+                          setSelectedService(service.id ?? null);
                           setFormData({
                             'Service Name': service['Service Name'] || '',
                             Days: service.Days || [],
@@ -383,7 +438,7 @@ const ServicesPage: React.FC = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                          setSelectedService(service.id);
+                          setSelectedService(service.id ?? null);
                           setIsDeleteModalOpen(true);
                         }}
                         className="border-teal-200 text-red-600 hover:bg-red-100"

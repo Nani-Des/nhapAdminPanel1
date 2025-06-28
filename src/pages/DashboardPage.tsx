@@ -40,6 +40,44 @@ ChartJS.register(
   Legend
 );
 
+// Skeleton Loading Components
+const MetricSkeleton = () => (
+  <div className="bg-teal-100 p-6 rounded-lg shadow-md border border-teal-200 animate-pulse">
+    <div className="flex items-center mb-4">
+      <div className="h-6 w-6 bg-teal-200 rounded-full"></div>
+      <div className="ml-2 h-6 w-32 bg-teal-200 rounded"></div>
+    </div>
+    <div className="h-32 bg-teal-200 rounded"></div>
+  </div>
+);
+
+const ActionHeaderSkeleton = () => (
+    <div className="animate-pulse">
+    <div className="h-8 w-32 bg-teal-200 rounded-lg mb-2"></div>
+  </div>
+)
+
+const QuickActionSkeleton = () => (
+  <div className="bg-teal-400 p-5 rounded-xl shadow-sm animate-pulse h-full">
+    <div className="flex items-start">
+      <div className="p-2 bg-teal-500/20 rounded-lg mr-4">
+        <div className="h-6 w-6 bg-teal-500/50 rounded-full"></div>
+      </div>
+      <div className="flex-1">
+        <div className="h-6 w-24 bg-teal-500/50 rounded mb-2"></div>
+        <div className="h-4 w-32 bg-teal-500/30 rounded"></div>
+      </div>
+    </div>
+  </div>
+);
+
+const WelcomeSkeleton = () => (
+  <div className="animate-pulse">
+    <div className="h-8 w-64 bg-teal-200 rounded-lg mb-2"></div>
+    <div className="h-4 w-80 bg-teal-200 rounded-md"></div>
+  </div>
+);
+
 const DashboardPage: React.FC = () => {
   const { hospital, notifications } = useHospital();
   const [metrics, setMetrics] = useState({
@@ -47,10 +85,12 @@ const DashboardPage: React.FC = () => {
     totalDepartments: 0,
     totalUsers: 0,
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
+        setLoading(true);
         const departmentIds = hospital?.['Hospital Department'];
 
         if (!hospital?.id || !departmentIds || departmentIds.length === 0) return;
@@ -78,6 +118,8 @@ const DashboardPage: React.FC = () => {
         });
       } catch (err) {
         console.error('Failed to fetch metrics:', err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -171,102 +213,122 @@ const DashboardPage: React.FC = () => {
     <Layout>
       <div className="space-y-8 bg-teal-50 p-6 rounded-lg">
         {/* Welcome section */}
-        <div>
-          <h1 className="text-3xl font-bold text-teal-900">
-            Welcome to {hospital?.['Hospital Name']} Admin Panel
-          </h1>
-          <p className="mt-2 text-base text-teal-700">
-            Monitor and manage your hospital's operations with real-time insights.
-          </p>
-        </div>
-
-        
-        
+        {loading ? (
+          <WelcomeSkeleton />
+        ) : (
+          <div>
+            <h1 className="text-3xl font-bold text-teal-900">
+              Welcome to {hospital?.['Hospital Name']} Admin Panel
+            </h1>
+            <p className="mt-2 text-base text-teal-700">
+              Monitor and manage your hospital's operations with real-time insights.
+            </p>
+          </div>
+        )}
 
         {/* Metrics section with charts */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="bg-teal-100 p-6 rounded-lg shadow-md border border-teal-200">
-            <div className="flex items-center mb-4">
-              <FileText className="h-6 w-6 text-teal-700" />
-              <h3 className="ml-2 text-lg font-semibold text-teal-900">Medical Records</h3>
-            </div>
-            <div className="h-32">
-              <Bar data={medicalRecordsData} options={barChartOptions} />
-            </div>
-          </div>
-          <div className="bg-teal-100 p-6 rounded-lg shadow-md border border-teal-200">
-            <div className="flex items-center mb-4">
-              <FolderPlus className="h-6 w-6 text-teal-700" />
-              <h3 className="ml-2 text-lg font-semibold text-teal-900">Departments</h3>
-            </div>
-            <div className="h-32">
-              <Bar data={departmentsData} options={barChartOptions} />
-            </div>
-          </div>
-          <div className="bg-teal-100 p-6 rounded-lg shadow-md border border-teal-200">
-            <div className="flex items-center mb-4">
-              <CircleUser className="h-6 w-6 text-teal-700" />
-              <h3 className="ml-2 text-lg font-semibold text-teal-900">Doctors</h3>
-            </div>
-            <div className="h-32">
-              <Line data={doctorsData} options={lineChartOptions} />
-            </div>
-          </div>
+          {loading ? (
+            <>
+              <MetricSkeleton />
+              <MetricSkeleton />
+              <MetricSkeleton />
+            </>
+          ) : (
+            <>
+              <div className="bg-teal-100 p-6 rounded-lg shadow-md border border-teal-200">
+                <div className="flex items-center mb-4">
+                  <FileText className="h-6 w-6 text-teal-700" />
+                  <h3 className="ml-2 text-lg font-semibold text-teal-900">Medical Records</h3>
+                </div>
+                <div className="h-32">
+                  <Bar data={medicalRecordsData} options={barChartOptions} />
+                </div>
+              </div>
+              <div className="bg-teal-100 p-6 rounded-lg shadow-md border border-teal-200">
+                <div className="flex items-center mb-4">
+                  <FolderPlus className="h-6 w-6 text-teal-700" />
+                  <h3 className="ml-2 text-lg font-semibold text-teal-900">Departments</h3>
+                </div>
+                <div className="h-32">
+                  <Bar data={departmentsData} options={barChartOptions} />
+                </div>
+              </div>
+              <div className="bg-teal-100 p-6 rounded-lg shadow-md border border-teal-200">
+                <div className="flex items-center mb-4">
+                  <CircleUser className="h-6 w-6 text-teal-700" />
+                  <h3 className="ml-2 text-lg font-semibold text-teal-900">Doctors</h3>
+                </div>
+                <div className="h-32">
+                  <Line data={doctorsData} options={lineChartOptions} />
+                </div>
+              </div>
+            </>
+          )}
         </div>
-
-        
 
         {/* Quick actions section */}
         <div>
+                 {loading ? (
+          <ActionHeaderSkeleton />
+        ) : (
           <h2 className="text-xl font-semibold text-teal-900 mb-4">Quick Actions</h2>
+        )}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <ActionCard
-              title="Manage Departments"
-              description="Manage departments in your hospital"
-              icon={<FolderPlus className="h-6 w-6 text-white" />}
-              path="/departments"
-            />
-            <ActionCard
-              title="Shift Schedule"
-              description="Manage doctor shift schedules"
-              icon={<Users className="h-6 w-6 text-white" />}
-              path="/shift-schedule"
-            />
-            <ActionCard
-                          title="Shift Roster"
-                          description="Manage department rosters"
-                          icon={<Users className="h-6 w-6 text-white" />}
-                          path="/shift-schedule"
-                        />
-            <ActionCard
-              title="View Medical Records"
-              description="Access patient medical records"
-              icon={<FileText className="h-6 w-6 text-white" />}
-              path="/medical-records"
-            />
-            <ActionCard
-              title="Manage Doctors"
-              description="Manage doctor profiles"
-              icon={<CircleUser className="h-6 w-6 text-white" />}
-              path="/doctors"
-            />
-            <ActionCard
-              title="Manage Services"
-              description="Mange hospital services"
-              icon={<FilePlus2 className="h-6 w-6 text-white" />}
-              path="/services"
-            />
-            <ActionCard
-              title="View Referrals"
-              description="Manage incoming patient referrals"
-              icon={<RefreshCw className="h-6 w-6 text-white" />}
-              path="/referrals"
-            />
+            {loading ? (
+              <>
+                <QuickActionSkeleton />
+                <QuickActionSkeleton />
+                <QuickActionSkeleton />
+                <QuickActionSkeleton />
+                <QuickActionSkeleton />
+                <QuickActionSkeleton />
+              </>
+            ) : (
+              <>
+                <ActionCard
+                  title="Manage Departments"
+                  description="Manage departments in your hospital"
+                  icon={<FolderPlus className="h-6 w-6 text-white" />}
+                  path="/departments"
+                />
+                <ActionCard
+                  title="Shift Schedule"
+                  description="Manage doctor shift schedules"
+                  icon={<Users className="h-6 w-6 text-white" />}
+                  path="/shift-schedule"
+                />
+                <ActionCard
+                  title="Shift Roster"
+                  description="Manage department rosters"
+                  icon={<Users className="h-6 w-6 text-white" />}
+                  path="/shift-schedule"
+                />
+                <ActionCard
+                  title="View Medical Records"
+                  description="Access patient medical records"
+                  icon={<FileText className="h-6 w-6 text-white" />}
+                  path="/medical-records"
+                />
+                <ActionCard
+                  title="Manage Doctors"
+                  description="Manage doctor profiles"
+                  icon={<CircleUser className="h-6 w-6 text-white" />}
+                  path="/doctors"
+                />
+                <ActionCard
+                  title="Manage Services"
+                  description="Mange hospital services"
+                  icon={<FilePlus2 className="h-6 w-6 text-white" />}
+                  path="/services"
+                />
+              </>
+            )}
           </div>
         </div>
 
         {/* Notifications preview */}
-        <NotificationPreview notifications={notifications} />
+        {!loading && <NotificationPreview notifications={notifications} />}
       </div>
     </Layout>
   );

@@ -10,6 +10,39 @@ import { collection, getDocs, onSnapshot, doc, getDoc } from 'firebase/firestore
 import { db } from '../firebase';
 import { Referral } from '../types';
 
+// Skeleton Loading Components
+const ReferralsHeaderSkeleton = () => (
+  <div className="animate-pulse">
+    <div className="h-8 w-32 bg-teal-200 rounded-lg mb-2"></div>
+    <div className="h-4 w-64 bg-teal-200 rounded-md"></div>
+  </div>
+);
+
+const SearchBarSkeleton = () => (
+  <div className="h-10 w-full max-w-md bg-teal-200 rounded-lg animate-pulse"></div>
+);
+
+const TableRowSkeleton = () => (
+  <tr className="animate-pulse">
+    {[...Array(7)].map((_, i) => (
+      <td key={i} className="px-6 py-4">
+        <div className="h-4 bg-teal-200 rounded"></div>
+      </td>
+    ))}
+  </tr>
+);
+
+const PaginationSkeleton = () => (
+  <div className="flex justify-between items-center mt-4 px-4 pb-4 animate-pulse">
+    <div className="h-4 w-24 bg-teal-200 rounded"></div>
+    <div className="flex space-x-1">
+      {[...Array(5)].map((_, i) => (
+        <div key={i} className="h-8 w-8 bg-teal-200 rounded"></div>
+      ))}
+    </div>
+  </div>
+);
+
 const ReferralsPage: React.FC = () => {
   const { referrals, hospital } = useHospital();
   const [hospitalReferrals, setHospitalReferrals] = useState<Record<string, Referral[]>>({});
@@ -140,30 +173,53 @@ const ReferralsPage: React.FC = () => {
       <div className="space-y-6 bg-teal-50 p-6 rounded-lg">
         {/* Header */}
         <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-teal-900">Referrals</h1>
-            <p className="mt-2 text-base text-teal-700">Manage incoming patient referrals</p>
-          </div>
+          {loading ? (
+            <ReferralsHeaderSkeleton />
+          ) : (
+            <div>
+              <h1 className="text-3xl font-bold text-teal-900">Referrals</h1>
+              <p className="mt-2 text-base text-teal-700">Manage incoming patient referrals</p>
+            </div>
+          )}
         </div>
 
         {/* Search Bar */}
         <div className="sticky top-0 z-10 bg-teal-50 py-4">
-          <Input
-            placeholder="Search by patient, doctor, or serial number..."
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="max-w-md bg-teal-100 border-teal-200 text-teal-900 placeholder-teal-600 focus:ring-teal-500 focus:border-teal-500"
-          />
+          {loading ? (
+            <SearchBarSkeleton />
+          ) : (
+            <Input
+              placeholder="Search by patient, doctor, or serial number..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="max-w-md bg-teal-100 border-teal-200 text-teal-900 placeholder-teal-600 focus:ring-teal-500 focus:border-teal-500"
+            />
+          )}
         </div>
 
         {/* Loading State */}
         {loading ? (
-          <div className="flex flex-col justify-center items-center py-10">
-            <Spinner />
-            <span className="text-teal-600 mt-2">Loading referrals...</span>
+          <div className="bg-teal-100 shadow-lg rounded-lg overflow-hidden">
+            <Table>
+              <Table.Header>
+                <Table.Row className="bg-teal-200">
+                  {[...Array(7)].map((_, i) => (
+                    <Table.Head key={i} className="text-teal-900 font-semibold">
+                      <div className="h-4 w-24 bg-teal-300 rounded"></div>
+                    </Table.Head>
+                  ))}
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {[...Array(5)].map((_, i) => (
+                  <TableRowSkeleton key={i} />
+                ))}
+              </Table.Body>
+            </Table>
+            <PaginationSkeleton />
           </div>
         ) : filteredReferrals.length === 0 ? (
           <div className="text-center py-10">

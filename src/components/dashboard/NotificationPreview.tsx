@@ -16,7 +16,7 @@ const NotificationPreview: React.FC<NotificationPreviewProps> = ({
   limit = 5,
 }) => {
   const navigate = useNavigate();
-  const { markNotificationAsRead } = useHospital();
+  // const { markNotificationAsRead } = useHospital();
   
   const getIcon = (type: string) => {
     switch (type) {
@@ -35,7 +35,7 @@ const NotificationPreview: React.FC<NotificationPreviewProps> = ({
 
   const handleMarkAsRead = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    markNotificationAsRead(id);
+    // markNotificationAsRead(id);
   };
 
   const getNotificationDate = (dateString: string) => {

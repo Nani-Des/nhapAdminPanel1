@@ -11,6 +11,35 @@ import Spinner from '../components/ui/Spinner';
 import { db, storage } from '../firebase';
 import { Referral } from '../types';
 
+// Skeleton Loading Components
+const RecordCardSkeleton = () => (
+  <div className="bg-teal-100 rounded-lg shadow-md border border-teal-200 p-6 animate-pulse">
+    <div className="space-y-4">
+      <div className="flex justify-center">
+        <div className="h-24 w-24 bg-teal-200 rounded-md"></div>
+      </div>
+      <div className="space-y-2">
+        <div className="h-6 w-3/4 bg-teal-200 rounded"></div>
+        <div className="h-4 w-full bg-teal-200 rounded"></div>
+        <div className="h-4 w-5/6 bg-teal-200 rounded"></div>
+        <div className="h-4 w-2/3 bg-teal-200 rounded"></div>
+      </div>
+      <div className="h-10 w-full bg-teal-300 rounded"></div>
+    </div>
+  </div>
+);
+
+const HeaderSkeleton = () => (
+  <div className="animate-pulse">
+    <div className="h-8 w-64 bg-teal-200 rounded mb-2"></div>
+    <div className="h-4 w-80 bg-teal-200 rounded"></div>
+  </div>
+);
+
+const SearchSkeleton = () => (
+  <div className="max-w-md h-10 bg-teal-200 rounded animate-pulse"></div>
+);
+
 interface MedicalRecord {
   id: string;
   fileUrl: string;
@@ -24,15 +53,17 @@ const MedicalRecords: React.FC = () => {
   const { hospital } = useHospital();
   const [records, setRecords] = useState<MedicalRecord[]>([]);
   const [referrals, setReferrals] = useState<Referral[]>([]);
-  const [users, setUsers] = useState<any[]>([]); // Added to fetch user data for doctor names
+  const [users, setUsers] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isPageLoading, setIsPageLoading] = useState(true);
   const [selectedRecord, setSelectedRecord] = useState<MedicalRecord | null>(null);
 
   // Fetch referrals from Firestore
   useEffect(() => {
     if (!hospital?.id) {
       setLoading(false);
+      setIsPageLoading(false);
       return;
     }
 
@@ -41,10 +72,9 @@ const MedicalRecords: React.FC = () => {
       const fetchedReferrals = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-        'Serial Number': doc.id, // Ensure Serial Number is the document ID
+        'Serial Number': doc.id,
       })) as Referral[];
       setReferrals(fetchedReferrals);
-      console.log('Fetched referrals:', fetchedReferrals);
     }, (error) => {
       console.error('Error fetching referrals:', error);
     });
@@ -71,11 +101,13 @@ const MedicalRecords: React.FC = () => {
     const fetchData = async () => {
       if (!hospital?.id) {
         setLoading(false);
+        setIsPageLoading(false);
         return;
       }
 
       try {
         setLoading(true);
+        setIsPageLoading(true);
 
         const folderRef = ref(storage, 'referral_files');
         const list = await listAll(folderRef);
@@ -93,10 +125,7 @@ const MedicalRecords: React.FC = () => {
               fileType = 'image';
             }
 
-            // Extract serial number from file name (e.g., "12345.pdf" → "12345")
             const serialNumber = itemRef.name.split('.')[0];
-
-            // Find matching referral by document ID (Serial Number)
             const referral = referrals.find(
               (r) => r['Serial Number'] === serialNumber || r.id === serialNumber
             );
@@ -113,11 +142,11 @@ const MedicalRecords: React.FC = () => {
         );
 
         setRecords(files);
-        console.log('Fetched records:', files);
       } catch (error) {
         console.error('Error fetching medical records:', error);
       } finally {
         setLoading(false);
+        setIsPageLoading(false);
       }
     };
 
@@ -126,17 +155,14 @@ const MedicalRecords: React.FC = () => {
 
   const filteredRecords = records.filter((record) => {
     if (!searchTerm.trim()) return true;
-
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
-    // Find the referring doctor for this record's referral
     const referral = record.referral;
     const doctor = referral
       ? users.find((u) => u.id === referral['Referred By'])
       : null;
     const doctorName = doctor?.Fname?.toLowerCase() || '';
 
-    // Search across serial number, file name, and referral fields
     return (
       record.serialNumber.toLowerCase().includes(normalizedSearch) ||
       record.name.toLowerCase().includes(normalizedSearch) ||
@@ -158,27 +184,41 @@ const MedicalRecords: React.FC = () => {
     <Layout>
       <div className="space-y-6 bg-teal-50 p-6 rounded-lg">
         {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-teal-900">Medical Records</h1>
-            <p className="mt-2 text-base text-teal-700">
-              View and manage uploaded medical record files
-            </p>
+        {isPageLoading ? (
+          <HeaderSkeleton />
+        ) : (
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-teal-900">Medical Records</h1>
+              <p className="mt-2 text-base text-teal-700">
+                View and manage uploaded medical record files
+              </p>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Search Bar */}
         <div className="sticky top-0 z-10 bg-teal-50 py-4">
-          <Input
-            placeholder="Search by serial number, patient name, doctor, diagnosis, etc..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-md bg-teal-100 border-teal-200 text-teal-900 placeholder-teal-600"
-          />
+          {isPageLoading ? (
+            <SearchSkeleton />
+          ) : (
+            <Input
+              placeholder="Search by serial number, patient name, doctor, diagnosis, etc..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="max-w-md bg-teal-100 border-teal-200 text-teal-900 placeholder-teal-600"
+            />
+          )}
         </div>
 
         {/* Records Grid */}
-        {loading ? (
+        {isPageLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, index) => (
+              <RecordCardSkeleton key={index} />
+            ))}
+          </div>
+        ) : loading ? (
           <div className="flex flex-col justify-center items-center py-10">
             <Spinner/>
             <span className="text-teal-700 mt-2">Loading medical records...</span>
@@ -197,7 +237,6 @@ const MedicalRecords: React.FC = () => {
                 onClick={() => setSelectedRecord(record)}
               >
                 <div className="space-y-4">
-                  {/* Preview */}
                   <div className="flex justify-center">
                     {record.fileType === 'pdf' ? (
                       <div className="h-24 w-24 flex items-center justify-center bg-teal-50 rounded-md">
@@ -212,7 +251,6 @@ const MedicalRecords: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Details */}
                   <div>
                     <h3 className="text-lg font-semibold text-teal-900 truncate">
                       Serial: {record.serialNumber}
@@ -229,7 +267,6 @@ const MedicalRecords: React.FC = () => {
                     </p>
                   </div>
 
-                  {/* Action */}
                   <Button
                     className="w-full bg-teal-600 hover:bg-teal-700 text-white flex items-center justify-center"
                     onClick={(e) => {

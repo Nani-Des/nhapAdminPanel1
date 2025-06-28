@@ -11,6 +11,55 @@ import { toast } from 'react-hot-toast';
 import { collection, getDocs, setDoc, doc, query } from 'firebase/firestore';
 import { db } from '../firebase';
 
+// Skeleton Loading Components
+const TableRowSkeleton = () => (
+  <Table.Row>
+    <Table.Cell>
+      <div className="h-4 bg-teal-200 rounded w-3/4 animate-pulse"></div>
+    </Table.Cell>
+    <Table.Cell>
+      <div className="h-4 bg-teal-200 rounded w-1/2 animate-pulse"></div>
+    </Table.Cell>
+    <Table.Cell>
+      <div className="flex space-x-2">
+        <div className="h-8 w-16 bg-teal-200 rounded animate-pulse"></div>
+        <div className="h-8 w-16 bg-red-200 rounded animate-pulse"></div>
+      </div>
+    </Table.Cell>
+  </Table.Row>
+);
+
+const DepartmentFormSkeleton = () => (
+  <div className="space-y-6 animate-pulse">
+    <div className="flex space-x-4 mb-4">
+      <div className="h-10 bg-teal-200 rounded w-1/2"></div>
+      <div className="h-10 bg-teal-200 rounded w-1/2"></div>
+    </div>
+    <div className="h-16 bg-teal-100 rounded"></div>
+    <div className="flex justify-end space-x-2">
+      <div className="h-10 w-20 bg-teal-200 rounded"></div>
+      <div className="h-10 w-32 bg-teal-600 rounded"></div>
+    </div>
+  </div>
+);
+
+const HeaderSkeleton = () => (
+  <div className="flex justify-between items-center animate-pulse">
+    <div>
+      <div className="h-8 bg-teal-200 rounded w-48 mb-2"></div>
+      <div className="h-4 bg-teal-200 rounded w-64"></div>
+    </div>
+    <div className="h-10 bg-teal-600 rounded w-40"></div>
+  </div>
+);
+
+const SearchSkeleton = () => (
+  <div className="relative max-w-md animate-pulse">
+    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 bg-teal-200 rounded"></div>
+    <div className="h-10 bg-teal-100 rounded pl-10"></div>
+  </div>
+);
+
 interface Department {
   id: string;
   'Department ID': string;
@@ -154,6 +203,7 @@ const DepartmentsPage: React.FC = () => {
   const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(true);
   const [formData, setFormData] = useState({
     'Department ID': '',
     'Department Name': '',
@@ -166,6 +216,7 @@ const DepartmentsPage: React.FC = () => {
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
+        setIsPageLoading(true);
         const deptQuery = query(collection(db, 'Department'));
         const snapshot = await getDocs(deptQuery);
         const depts = snapshot.docs.map((doc) => ({
@@ -181,6 +232,8 @@ const DepartmentsPage: React.FC = () => {
       } catch (err) {
         console.error('Failed to fetch departments:', err);
         toast.error('Failed to load available departments');
+      } finally {
+        setIsPageLoading(false);
       }
     };
     fetchDepartments();
@@ -330,40 +383,48 @@ const DepartmentsPage: React.FC = () => {
     <Layout>
       <div className="space-y-6 bg-teal-50 p-6 rounded-lg">
         {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-teal-900">Departments</h1>
-            <p className="mt-2 text-base text-teal-700">
-              Manage hospital departments
-            </p>
+        {isPageLoading ? (
+          <HeaderSkeleton />
+        ) : (
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-teal-900">Departments</h1>
+              <p className="mt-2 text-base text-teal-700">
+                Manage hospital departments
+              </p>
+            </div>
+            <Button
+              onClick={() => {
+                resetForm();
+                setIsAddModalOpen(true);
+              }}
+              className="flex items-center bg-teal-600 hover:bg-teal-700 text-white"
+            >
+              <FolderPlus className="w-5 h-5 mr-2" />
+              Add Department
+            </Button>
           </div>
-          <Button
-            onClick={() => {
-              resetForm();
-              setIsAddModalOpen(true);
-            }}
-            className="flex items-center bg-teal-600 hover:bg-teal-700 text-white"
-          >
-            <FolderPlus className="w-5 h-5 mr-2" />
-            Add Department
-          </Button>
-        </div>
+        )}
 
         {/* Search Bar */}
         <div className="sticky top-0 z-10 bg-teal-50 py-4">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-teal-600" />
-            <Input
-              placeholder="Search departments..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-teal-100 border-teal-200 text-teal-900 placeholder-teal-600"
-            />
-          </div>
+          {isPageLoading ? (
+            <SearchSkeleton />
+          ) : (
+            <div className="relative max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-teal-600" />
+              <Input
+                placeholder="Search departments..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 bg-teal-100 border-teal-200 text-teal-900 placeholder-teal-600"
+              />
+            </div>
+          )}
         </div>
 
         {/* Empty State */}
-        {filteredDepartments.length === 0 && (
+        {!isPageLoading && filteredDepartments.length === 0 && (
           <div className="text-center py-10">
             <p className="text-teal-600 text-lg">
               {searchTerm ? 'No departments found matching your search.' : 'No departments available.'}
@@ -372,7 +433,24 @@ const DepartmentsPage: React.FC = () => {
         )}
 
         {/* Departments Table */}
-        {filteredDepartments.length > 0 && (
+        {isPageLoading ? (
+          <div className="bg-white shadow rounded-lg overflow-hidden">
+            <Table>
+              <Table.Header>
+                <Table.Row>
+                  <Table.Head className="bg-teal-100 text-teal-900">Department Name</Table.Head>
+                  <Table.Head className="bg-teal-100 text-teal-900">Department ID</Table.Head>
+                  <Table.Head className="bg-teal-100 text-teal-900">Actions</Table.Head>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {[...Array(5)].map((_, index) => (
+                  <TableRowSkeleton key={index} />
+                ))}
+              </Table.Body>
+            </Table>
+          </div>
+        ) : filteredDepartments.length > 0 ? (
           <div className="bg-white shadow rounded-lg overflow-hidden">
             <Table>
               <Table.Header>
@@ -422,7 +500,7 @@ const DepartmentsPage: React.FC = () => {
               </Table.Body>
             </Table>
           </div>
-        )}
+        ) : null}
 
         {/* Add Department Modal */}
         <Modal
@@ -431,17 +509,21 @@ const DepartmentsPage: React.FC = () => {
           title="Add Department"
           size="lg"
         >
-          <DepartmentForm
-            formData={formData}
-            setFormData={setFormData}
-            handleSubmit={handleSubmit}
-            isLoading={isLoading}
-            selectedDepartment={selectedDepartment}
-            onCancel={closeAddModal}
-            mode={mode}
-            setMode={setMode}
-            availableDepartments={availableDepartments}
-          />
+          {isPageLoading ? (
+            <DepartmentFormSkeleton />
+          ) : (
+            <DepartmentForm
+              formData={formData}
+              setFormData={setFormData}
+              handleSubmit={handleSubmit}
+              isLoading={isLoading}
+              selectedDepartment={selectedDepartment}
+              onCancel={closeAddModal}
+              mode={mode}
+              setMode={setMode}
+              availableDepartments={availableDepartments}
+            />
+          )}
         </Modal>
 
         {/* Edit Department Modal */}
@@ -451,43 +533,47 @@ const DepartmentsPage: React.FC = () => {
           title="Edit Department"
           size="lg"
         >
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input
-                label="Department Name"
-                value={formData['Department Name']}
-                onChange={(e) => setFormData((prev: any) => ({ ...prev, 'Department Name': e.target.value }))}
-                required
-                className="bg-teal-50 border-teal-200 text-teal-900 placeholder-teal-600"
-                placeholder="e.g., Cardiology"
-              />
-              <Input
-                label="Department ID"
-                value={formData['Department ID']}
-                onChange={(e) => setFormData((prev: any) => ({ ...prev, 'Department ID': e.target.value }))}
-                required
-                className="bg-teal-50 border-teal-200 text-teal-900 placeholder-teal-600"
-                placeholder="e.g., CARDIO123"
-              />
-            </div>
-            <div className="flex justify-end space-x-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={closeEditModal}
-                className="border-teal-200 text-teal-700 hover:bg-teal-100"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="bg-teal-600 hover:bg-teal-700 text-white"
-              >
-                {isLoading ? 'Saving...' : 'Update Department'}
-              </Button>
-            </div>
-          </form>
+          {isPageLoading ? (
+            <DepartmentFormSkeleton />
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input
+                  label="Department Name"
+                  value={formData['Department Name']}
+                  onChange={(e) => setFormData((prev: any) => ({ ...prev, 'Department Name': e.target.value }))}
+                  required
+                  className="bg-teal-50 border-teal-200 text-teal-900 placeholder-teal-600"
+                  placeholder="e.g., Cardiology"
+                />
+                <Input
+                  label="Department ID"
+                  value={formData['Department ID']}
+                  onChange={(e) => setFormData((prev: any) => ({ ...prev, 'Department ID': e.target.value }))}
+                  required
+                  className="bg-teal-50 border-teal-200 text-teal-900 placeholder-teal-600"
+                  placeholder="e.g., CARDIO123"
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={closeEditModal}
+                  className="border-teal-200 text-teal-700 hover:bg-teal-100"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="bg-teal-600 hover:bg-teal-700 text-white"
+                >
+                  {isLoading ? 'Saving...' : 'Update Department'}
+                </Button>
+              </div>
+            </form>
+          )}
         </Modal>
 
         {/* Delete Confirmation Modal */}

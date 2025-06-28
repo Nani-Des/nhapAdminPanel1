@@ -54,7 +54,7 @@ const LoginPage: React.FC = () => {
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-blue-900 opacity-30"></div>
         <img 
-          src="../public/logn.avif"
+          src="/logn.avif"
           alt="Hospital background"
           className="w-full h-full object-cover"
         />
