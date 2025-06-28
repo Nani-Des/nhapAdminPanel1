@@ -526,8 +526,8 @@ await setDoc(scheduleSubRef, {
           {filteredUsers.map((user) => (
             <div
               key={user.id}
-              className={`bg-white p-6 rounded-lg shadow-md border-2 ${
-                user.Status ? 'border-teal-200' : 'border-red-300'
+              className={`bg-teal-100 p-6 rounded-lg shadow-md border-2 ${
+                user.Status ? 'border-teal-200' : 'border-red-400'
               } hover:bg-teal-100 transition-all duration-200 `}
             >
               <div className="flex items-center space-x-4">
@@ -553,10 +553,10 @@ await setDoc(scheduleSubRef, {
                 </div>
               </div>
               <div className="mt-4 space-y-2">
-                <p className="text-sm text-teal-600">
+                <p className="text-sm text-teal-800">
                   Experience: {user.Experience} years
                 </p>
-                <p className="text-sm text-teal-600">
+                <p className="text-sm text-teal-800">
                   Status: {user.Status ? 'Active' : 'Disabled'}
                 </p>
                 <div className="flex flex-wrap gap-2">

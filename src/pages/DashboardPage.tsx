@@ -180,6 +180,9 @@ const DashboardPage: React.FC = () => {
           </p>
         </div>
 
+        
+        
+
         {/* Metrics section with charts */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="bg-teal-100 p-6 rounded-lg shadow-md border border-teal-200">
@@ -211,13 +214,15 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
 
+        
+
         {/* Quick actions section */}
         <div>
           <h2 className="text-xl font-semibold text-teal-900 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <ActionCard
-              title="Add Department"
-              description="Create a new department in your hospital"
+              title="Manage Departments"
+              description="Manage departments in your hospital"
               icon={<FolderPlus className="h-6 w-6 text-white" />}
               path="/departments"
             />
@@ -246,8 +251,8 @@ const DashboardPage: React.FC = () => {
               path="/doctors"
             />
             <ActionCard
-              title="Add Services"
-              description="Create new hospital services"
+              title="Manage Services"
+              description="Mange hospital services"
               icon={<FilePlus2 className="h-6 w-6 text-white" />}
               path="/services"
             />
